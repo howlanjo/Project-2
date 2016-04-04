@@ -57,6 +57,9 @@ extern unsigned long __STACK_END;
 /* To be added by user */
 extern void euscia0_isr(void);
 extern void euscia2_isr(void);
+extern void timer0_a0_isr(void);
+extern void timer0_a1_isr(void);
+extern void rtc_isr(void);
 
 
 /* Interrupt vector table.  Note that the proper constructs must be placed on this to  */
@@ -92,9 +95,9 @@ void (* const interruptVectors[])(void) =
     defaultISR,                             /* COMP0 ISR                 */
     defaultISR,                             /* COMP1 ISR                 */
     defaultISR,                             /* TA0_0 ISR                 */
-    defaultISR,                             /* TA0_N ISR                 */
+	timer0_a0_isr,                             /* TA0_N ISR                 */
     defaultISR,                             /* TA1_0 ISR                 */
-    defaultISR,                             /* TA1_N ISR                 */
+	timer0_a1_isr,                             /* TA1_N ISR                 */
     defaultISR,                             /* TA2_0 ISR                 */
     defaultISR,                             /* TA2_N ISR                 */
     defaultISR,                             /* TA3_0 ISR                 */
@@ -112,7 +115,7 @@ void (* const interruptVectors[])(void) =
     defaultISR,                             /* T32_INT2 ISR              */
     defaultISR,                             /* T32_INTC ISR              */
     defaultISR,                             /* AES ISR                   */
-    defaultISR,                             /* RTC ISR                   */
+	rtc_isr,      	                        /* RTC ISR                   */
     defaultISR,                             /* DMA_ERR ISR               */
     defaultISR,                             /* DMA_INT3 ISR              */
     defaultISR,                             /* DMA_INT2 ISR              */

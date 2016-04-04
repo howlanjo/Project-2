@@ -10,27 +10,33 @@ LIB_SRCS += \
 ../msp432p4xx_driverlib.lib 
 
 C_SRCS += \
-../main.c \
-../msp432_startup_ccs.c 
+../main_Client.c \
+../msp432_startup_ccs.c \
+../support.c 
 
 OBJS += \
-./main.obj \
-./msp432_startup_ccs.obj 
+./main_Client.obj \
+./msp432_startup_ccs.obj \
+./support.obj 
 
 C_DEPS += \
-./main.pp \
-./msp432_startup_ccs.pp 
+./main_Client.pp \
+./msp432_startup_ccs.pp \
+./support.pp 
 
 C_DEPS__QUOTED += \
-"main.pp" \
-"msp432_startup_ccs.pp" 
+"main_Client.pp" \
+"msp432_startup_ccs.pp" \
+"support.pp" 
 
 OBJS__QUOTED += \
-"main.obj" \
-"msp432_startup_ccs.obj" 
+"main_Client.obj" \
+"msp432_startup_ccs.obj" \
+"support.obj" 
 
 C_SRCS__QUOTED += \
-"../main.c" \
-"../msp432_startup_ccs.c" 
+"../main_Client.c" \
+"../msp432_startup_ccs.c" \
+"../support.c" 
 
 

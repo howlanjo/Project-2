@@ -10,8 +10,9 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
-"./main.obj" \
+"./main_Client.obj" \
 "./msp432_startup_ccs.obj" \
+"./support.obj" \
 "../msp432p401r.cmd" \
 "../msp432p4xx_driverlib.lib" \
 $(GEN_CMDS__FLAG) \
@@ -151,8 +152,8 @@ Project\ 2.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)$(BIN_OUTPUTS__QUOTED)
-	-$(RM) "main.pp" "msp432_startup_ccs.pp" 
-	-$(RM) "main.obj" "msp432_startup_ccs.obj" 
+	-$(RM) "main_Client.pp" "msp432_startup_ccs.pp" "support.pp" 
+	-$(RM) "main_Client.obj" "msp432_startup_ccs.obj" "support.obj" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

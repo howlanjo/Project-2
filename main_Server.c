@@ -2,6 +2,7 @@
 #include <msp432.h>
 #include <string.h>
 #include "stdint.h"
+#include "support.h"
 
 #define	IDLE			0
 #define	GET_IPD			1
@@ -47,7 +48,7 @@ const eUSCI_UART_Config uartConfig =
 };
 
 //------------------------------------------------------------------------------
-void main(void)
+void main_Server(void)
 {
 	int err = 0, i;
 	char tempBuf[1024], *ptr, *ptr1, tempChar, tempParseBuffer[100];
@@ -59,7 +60,7 @@ void main(void)
 
 	bufIDx = 0;
 
-	err = InitFunction();
+	err = InitFunction_Server();
 	if(err)
 	{
 		my_puts("Initialization Failed!!!\n");
@@ -230,101 +231,3 @@ void ESP8266_Receive()
 	//Do nothing for right now
 }
 //------------------------------------------------------------------------------
-int InitFunction(void)
-{
-	int err = 0;
-
-	// Turning off watch dog timer
-	MAP_WDT_A_holdTimer();
-
-	//Configuring pins for peripheral/crystal usage.
-	CS_setExternalClockSourceFrequency(32768,48000000);
-	MAP_PCM_setCoreVoltageLevel(PCM_VCORE1);
-	MAP_FlashCtl_setWaitState(FLASH_BANK0, 2);
-	MAP_FlashCtl_setWaitState(FLASH_BANK1, 2);
-	CS_startHFXT(false);
-
-	//Setting other clocks to speeds needed throughout the project
-	MAP_CS_initClockSignal(CS_MCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
-	MAP_CS_initClockSignal(CS_SMCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_4);
-	MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_PJ, GPIO_PIN3 | GPIO_PIN4, GPIO_PRIMARY_MODULE_FUNCTION);
-
-
-	// Selecting P3.1 P3.2 and P3.3 in UART mode
-	GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P3,
-			GPIO_PIN1 | GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
-
-	// Selecting P1.1 P1.2 and P1.3 in UART mode
-	GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P1,
-			GPIO_PIN1 | GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
-
-	// Configuring SPI in 3wire master mode
-	UART_initModule(EUSCI_A0_MODULE, &uartConfig);
-	UART_initModule(EUSCI_A2_MODULE, &uartConfig);
-
-	//Enable SPI module
-	UART_enableModule(EUSCI_A0_MODULE);
-	UART_enableModule(EUSCI_A2_MODULE);
-
-    /* Enabling interrupts */
-    MAP_UART_enableInterrupt(EUSCI_A0_MODULE, EUSCI_A_UART_RECEIVE_INTERRUPT);
-    MAP_UART_enableInterrupt(EUSCI_A2_MODULE, EUSCI_A_UART_RECEIVE_INTERRUPT);
-    MAP_Interrupt_enableInterrupt(INT_EUSCIA0);
-    MAP_Interrupt_enableInterrupt(INT_EUSCIA2);
-    MAP_Interrupt_enableSleepOnIsrExit();
-    MAP_Interrupt_enableMaster();
-
-
-    MAP_GPIO_setAsOutputPin(GPIO_PORT_P2, GPIO_PIN0 | GPIO_PIN1 | GPIO_PIN2);
-
-
-	return err;
-}
-//------------------------------------------------------------------------------
-int CheckForString(char *letter)
-{
-	int found = 0;
-	static int ptr;
-
-	if(DesiredString[ptr] == *letter)
-	{
-		ptr++;
-		if(ptr == strlen(DesiredString))
-		{
-			found = 1;
-		}
-		else
-			CheckForString(letter++);
-	}
-	else
-	{
-		ptr = 0;
-		found = 0;
-	}
-
-	return found;
-}
-//------------------------------------------------------------------------------
-void PutInServerMode(void)
-{
-	__delay_cycles(1000000);
-	__delay_cycles(1000000);
-	__delay_cycles(1000000);
-	__delay_cycles(1000000);
-
-	sprintf(DataOUT, "AT+CIPCLOSE=5\r\n");
-	ESP8266_Send(DataOUT);
-	__delay_cycles(1000000);
-
-	sprintf(DataOUT, "AT+CIPMUX=1\r\n");
-	ESP8266_Send(DataOUT);
-	__delay_cycles(1000000);
-
-	sprintf(DataOUT, "AT+CIPSERVER=0\r\n");
-	ESP8266_Send(DataOUT);
-	__delay_cycles(1000000);
-
-	sprintf(DataOUT, "AT+CIPSERVER=1,80\r\n");
-	ESP8266_Send(DataOUT);
-	__delay_cycles(1000000);
-}
