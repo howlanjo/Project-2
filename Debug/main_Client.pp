@@ -47,6 +47,9 @@ main_Client.obj: C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/linka
 main_Client.obj: C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/stdio.h
 main_Client.obj: C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/stdarg.h
 main_Client.obj: ../support.h
+main_Client.obj: ../ST7735.h
+main_Client.obj: ../ClockSystem.h
+main_Client.obj: ../Light.h
 
 ../main_Client.c: 
 C:/Users/ChaseHowland\ Pro/ti/Project\ 2/driverlib/MSP432P4xx/driverlib.h: 
@@ -95,3 +98,6 @@ C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/linkage.h:
 C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/stdio.h: 
 C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/stdarg.h: 
 ../support.h: 
+../ST7735.h: 
+../ClockSystem.h: 
+../Light.h: 

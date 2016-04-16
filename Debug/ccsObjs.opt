@@ -1,1 +1,1 @@
-"./main_Client.obj" "./msp432_startup_ccs.obj" "./support.obj" "../msp432p401r.cmd" "../msp432p4xx_driverlib.lib" -l"libc.a" 
+"./ClockSystem.obj" "./Light.obj" "./ST7735.obj" "./main_Client.obj" "./msp432_startup_ccs.obj" "./support.obj" "../msp432p401r.cmd" "../msp432p4xx_driverlib.lib" -l"libc.a" 

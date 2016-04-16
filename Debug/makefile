@@ -10,6 +10,9 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./ClockSystem.obj" \
+"./Light.obj" \
+"./ST7735.obj" \
 "./main_Client.obj" \
 "./msp432_startup_ccs.obj" \
 "./support.obj" \
@@ -152,8 +155,8 @@ Project\ 2.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)$(BIN_OUTPUTS__QUOTED)
-	-$(RM) "main_Client.pp" "msp432_startup_ccs.pp" "support.pp" 
-	-$(RM) "main_Client.obj" "msp432_startup_ccs.obj" "support.obj" 
+	-$(RM) "ClockSystem.pp" "Light.pp" "ST7735.pp" "main_Client.pp" "msp432_startup_ccs.pp" "support.pp" 
+	-$(RM) "ClockSystem.obj" "Light.obj" "ST7735.obj" "main_Client.obj" "msp432_startup_ccs.obj" "support.obj" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

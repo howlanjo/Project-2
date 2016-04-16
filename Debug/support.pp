@@ -42,11 +42,14 @@ support.obj: C:/Users/ChaseHowland\ Pro/ti/Project\ 2/driverlib/MSP432P4xx/timer
 support.obj: C:/Users/ChaseHowland\ Pro/ti/Project\ 2/driverlib/MSP432P4xx/uart.h
 support.obj: C:/Users/ChaseHowland\ Pro/ti/Project\ 2/driverlib/MSP432P4xx/wdt_a.h
 support.obj: C:/ti/ccsv6/ccs_base/arm/include/msp432.h
-support.obj: C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/string.h
-support.obj: C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/linkage.h
 support.obj: C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/stdio.h
+support.obj: C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/linkage.h
 support.obj: C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/stdarg.h
+support.obj: C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/stdlib.h
+support.obj: C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/string.h
 support.obj: ../support.h
+support.obj: ../ST7735.h
+support.obj: ../ClockSystem.h
 
 ../support.c: 
 C:/Users/ChaseHowland\ Pro/ti/Project\ 2/driverlib/MSP432P4xx/driverlib.h: 
@@ -90,8 +93,11 @@ C:/Users/ChaseHowland\ Pro/ti/Project\ 2/driverlib/MSP432P4xx/timer_a.h:
 C:/Users/ChaseHowland\ Pro/ti/Project\ 2/driverlib/MSP432P4xx/uart.h: 
 C:/Users/ChaseHowland\ Pro/ti/Project\ 2/driverlib/MSP432P4xx/wdt_a.h: 
 C:/ti/ccsv6/ccs_base/arm/include/msp432.h: 
-C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/string.h: 
-C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/linkage.h: 
 C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/stdio.h: 
+C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/linkage.h: 
 C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/stdarg.h: 
+C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/stdlib.h: 
+C:/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.0.LTS/include/string.h: 
 ../support.h: 
+../ST7735.h: 
+../ClockSystem.h: 
