@@ -559,56 +559,127 @@ int ParseWUNDER_Data(int beginningByte, int endingByte, char *buf, int index)
 		memcpy(temp, &buf[beginningByte], (endingByte - beginningByte));
 	}
 
-	for(periodCounter = 0; periodCounter < 4; periodCounter++)
+	if(index == 0) //Parses the forcast
 	{
-		memset(periodString, 0, sizeof(periodString));
-		sprintf(periodString, "\"period\":%d", periodCounter+1);
-		startingPoint = strstr(temp, periodString);
+		for(periodCounter = 0; periodCounter < 4; periodCounter++)
+		{
+			memset(periodString, 0, sizeof(periodString));
+			sprintf(periodString, "\"period\":%d", periodCounter+1);
+			startingPoint = strstr(temp, periodString);
+
+			if(startingPoint)
+			{
+				for(searchCounter = 0; searchCounter < 6; searchCounter++)
+				{
+					ptr1 = strstr(startingPoint, strToFind[searchCounter]);
+					if(ptr1)
+					{
+						memset(currentWeather, 0, sizeof(currentWeather));
+						if(searchCounter == 0)
+						{
+							ptr2 = strstr(ptr1, "fahrenheit");
+							err = getDataBetweenQuotationMarks(&ptr2[12], currentWeather);
+							Weather[periodCounter].fahrenheitHIGH = atoi(currentWeather);
+						}
+						else if(searchCounter == 1)
+						{
+							ptr2 = strstr(ptr1, "fahrenheit");
+							err = getDataBetweenQuotationMarks(&ptr2[12], currentWeather);
+							Weather[periodCounter].fahrenheitLOW = atoi(currentWeather);
+						}
+						else if(searchCounter == 2)
+						{
+							err = getDataBetweenQuotationMarks(&ptr1[spaces[searchCounter]], currentWeather);
+							strcpy(Weather[periodCounter].conditions, currentWeather);
+						}
+						else if(searchCounter == 3)
+						{
+							ptr2 = strstr(ptr1, "mph");
+							sscanf(ptr2, "mph\": %d,", &dataINT);
+							Weather[periodCounter].avewind = dataINT;
+
+							ptr2 = strstr(ptr1, "dir");
+							err = getDataBetweenQuotationMarks(&ptr2[5], currentWeather);
+							strcpy(Weather[periodCounter].windDirection, currentWeather);
+						}
+						else if(searchCounter == 4)
+						{
+							sscanf(ptr1, "\"avehumidity\": %d,", &dataINT);
+							Weather[periodCounter].avehumidity = dataINT;
+						}
+						else if(searchCounter == 5)
+						{
+							sscanf(ptr1, "\"pop\":%d,", &dataINT);
+							Weather[periodCounter].pop = dataINT;
+						}
+						else
+						{
+							my_puts("An error occured!!\n");
+							err = -1;
+						}
+					}
+					else
+					{
+						my_puts("Cannot find the time string!\n");
+						err = -2;
+					}
+				}
+			}
+			else
+			{
+				my_puts("Cound not find starting point\n");
+				err = -3;
+			}
+		}
+	}
+	else //Parses the current conditions
+	{
+		startingPoint = strstr(temp, "current_observation");
 
 		if(startingPoint)
 		{
-			for(searchCounter = 0; searchCounter < 5; searchCounter++)
+			for(searchCounter = 0; searchCounter < 4; searchCounter++)
 			{
-				ptr1 = strstr(startingPoint, strToFind[index + searchCounter]);
+				ptr1 = strstr(startingPoint, strToFind[searchCounter+6]);
 				if(ptr1)
 				{
 					memset(currentWeather, 0, sizeof(currentWeather));
 					if(searchCounter == 0)
 					{
-						ptr2 = strstr(ptr1, "fahrenheit");
-						err = getDataBetweenQuotationMarks(&ptr2[12], currentWeather);
-						Weather[periodCounter].fahrenheitHIGH = atoi(currentWeather);
+						sscanf(ptr1, "\"temp_f\":%d,", &dataINT);
+						CurrentWeather.currentTemp = dataINT;
 					}
 					else if(searchCounter == 1)
 					{
-						ptr2 = strstr(ptr1, "fahrenheit");
-						err = getDataBetweenQuotationMarks(&ptr2[12], currentWeather);
-						Weather[periodCounter].fahrenheitLOW = atoi(currentWeather);
+						err = getDataBetweenQuotationMarks(&ptr1[spaces[searchCounter+6]], currentWeather);
+						CurrentWeather.currentHumidity = atoi(currentWeather);
 					}
 					else if(searchCounter == 2)
 					{
-						err = getDataBetweenQuotationMarks(&ptr1[spaces[index + searchCounter]], currentWeather);
-						strcpy(Weather[periodCounter].conditions, currentWeather);
+						err = getDataBetweenQuotationMarks(&ptr1[spaces[searchCounter+6]], currentWeather);
+						strcpy(CurrentWeather.currentCondition, currentWeather);
 					}
 					else if(searchCounter == 3)
 					{
-						ptr2 = strstr(ptr1, "mph");
-						sscanf(ptr2, "mph\": %d,", &dataINT);
-						Weather[periodCounter].avewind = dataINT;
-
-						ptr2 = strstr(ptr1, "dir");
-						err = getDataBetweenQuotationMarks(&ptr2[5], currentWeather);
-						strcpy(Weather[periodCounter].windDirection, currentWeather);
+						sscanf(ptr1, "\"local_time_rfc822\":%s,", currentWeather);
+						if(strstr(currentWeather, "Sun"))
+							CurrentWeather.dayOfWeek = 0;
+						else if(strstr(currentWeather, "Mon"))
+							CurrentWeather.dayOfWeek = 1;
+						else if(strstr(currentWeather, "Tue"))
+							CurrentWeather.dayOfWeek = 2;
+						else if(strstr(currentWeather, "Wed"))
+							CurrentWeather.dayOfWeek = 3;
+						else if(strstr(currentWeather, "Thu"))
+							CurrentWeather.dayOfWeek = 4;
+						else if(strstr(currentWeather, "Fri"))
+							CurrentWeather.dayOfWeek = 5;
+						else if(strstr(currentWeather, "Sat"))
+							CurrentWeather.dayOfWeek = 6;
+						else
+							CurrentWeather.dayOfWeek = 0;
 					}
 					else if(searchCounter == 4)
-					{
-						sscanf(ptr1, "\"avehumidity\": %d,", &dataINT);
-						Weather[periodCounter].avehumidity = dataINT;
-
-	//					err = getDataBetweenQuotationMarks(&ptr1[spaces[index + searchCounter]], currentWeather);
-	//					Weather.rh = atof(currentWeather);
-					}
-					else
 					{
 						my_puts("An error occured!!\n");
 						err = -1;
@@ -620,11 +691,6 @@ int ParseWUNDER_Data(int beginningByte, int endingByte, char *buf, int index)
 					err = -2;
 				}
 			}
-		}
-		else
-		{
-			my_puts("Cound not find starting point\n");
-			err = -3;
 		}
 	}
 
@@ -730,7 +796,7 @@ int GetWUNDERdata(int index)
 		bufIDx = 0;
 		startByte = bufIDx;
 
-		sprintf(DataOUT, "AT+CIPSEND=%d\r\n", strlen(weatherString));
+		sprintf(DataOUT, "AT+CIPSEND=1,%d\r\n", strlen(weatherString));
 		ESP8266_Send(DataOUT);
 		err |= WaitForResponse_String("OK", YES);
 
@@ -758,11 +824,12 @@ int GetWUNDERdata(int index)
 		ESP8266_Send(DataOUT);
 		err |= WaitForResponse_String("CLOSED", NO);
 		endByte = bufIDx;
-	}
-	ptr = strstr(ESPbuffer, "simpleforecast");
-	if(ptr)
-	{
-		startByte = strlen(ESPbuffer) - strlen(ptr);
+
+		ptr = strstr(ESPbuffer, "simpleforecast");
+		if(ptr)
+		{
+			startByte = strlen(ESPbuffer) - strlen(ptr);
+		}
 	}
 
 	err |= ParseWUNDER_Data(startByte, endByte, ESPbuffer, index);
@@ -811,14 +878,16 @@ int getDataBetweenQuotationMarks(char *ptr, char dataReturned[80])
 //------------------------------------------------------------------------------
 int BallColorDecision(void)
 {
-	int err = 0;
+	int err = 0, dif = 0;
 
-	if((Weather[1].fahrenheitHIGH - Weather[0].fahrenheitHIGH) > 3)
+	dif = Weather[1].fahrenheitHIGH - Weather[0].fahrenheitHIGH;
+
+	if(dif > 3)
 	{
 		BallColorMASTER = RED;
 		BallColor = RED;
 	}
-	else if ((Weather[1].fahrenheitHIGH - Weather[0].fahrenheitHIGH) < -3)
+	else if (dif < -3)
 	{
 		BallColorMASTER = BLUE;
 		BallColor = BLUE;
@@ -866,6 +935,37 @@ int LaunchWebsite(int channel)
 	sprintf(DataOUT, "AT+CIPCLOSE=%d\r\n", channel);
 	ESP8266_Send(DataOUT);
 	WaitForResponse_String("CLOSED", YES);
+
+	return err;
+}
+//------------------------------------------------------------------------------
+int NextDateString(int currentDay, char *dayStringReturn, int daysOut)
+{
+	int err = 0;
+	char dayStrings[7][12];
+
+	memset(dayStrings, 0, sizeof(dayStrings));
+
+	strcpy(dayStrings[0], "Sunday");
+	strcpy(dayStrings[1], "Monday");
+	strcpy(dayStrings[2], "Tuesday");
+	strcpy(dayStrings[3], "Thursday");
+	strcpy(dayStrings[4], "Friday");
+	strcpy(dayStrings[5], "Saturday");
+	strcpy(dayStrings[6], "Sunday");
+
+	if((currentDay+daysOut > 6))
+	{
+		strcpy(dayStringReturn, dayStrings[(currentDay+daysOut)-6]);
+//		dayStringReturn[strlen(dayStrings(currentDay+daysOut)-6)] = 0;
+	}
+	else
+	{
+		strcpy(dayStringReturn, dayStrings[(currentDay+daysOut)]);
+//		dayStringReturn[dayStrings(currentDay+daysOut)] = 0;
+	}
+
+
 
 	return err;
 }

@@ -15,9 +15,9 @@
 void main(void)
 {
 	int err = 0, j = 0, numLEDs = 7, i, marker = 0;
-	static int temp = 0;
+	static int temp = 0, colonTemp = 0;
 	int tempLightState, tempColor = 0, HTMLcolor = 0;
-	char timeString[50], weatherString[125], *ptr, *ptr1, tempStr[50];
+	char timeString[50], weatherString[125], *ptr, *ptr1, tempStr[50], dayString[12];
 
 	// Turning off watch dog timer
 	MAP_WDT_A_holdTimer();
@@ -32,6 +32,17 @@ void main(void)
 	spaces[3] = strlen(strToFind[3]);
 	strcpy(strToFind[4], "\"avehumidity\"");
 	spaces[4] = strlen(strToFind[4]);
+	strcpy(strToFind[5], "\"pop\"");
+	spaces[5] = strlen(strToFind[5]);
+
+	strcpy(strToFind[6], "\"temp_f\"");
+	spaces[6] = strlen(strToFind[6]);
+	strcpy(strToFind[7], "\"relative_humidity\"");
+	spaces[7] = strlen(strToFind[7]);
+	strcpy(strToFind[8], "\"weather\"");
+	spaces[8] = strlen(strToFind[8]);
+	strcpy(strToFind[9], "\"local_time_rfc822\"");
+	spaces[9] = strlen(strToFind[9]);
 
 	Refresh = 0;
 	bufIDx = 0;
@@ -84,6 +95,8 @@ void main(void)
 	while(err)
 	{
 		err = GetWUNDERdata(0);
+		__delay_cycles(10000000);
+		err = GetWUNDERdata(1);
 		if(err)
 			__delay_cycles(10000000);
 	}
@@ -109,6 +122,9 @@ void main(void)
 			while(err)
 			{
 				err = GetWUNDERdata(0);
+				__delay_cycles(10000000);
+				err = GetWUNDERdata(1);
+
 				BallColorDecision();
 				if(err)
 					__delay_cycles(10000000);
@@ -134,44 +150,6 @@ void main(void)
 			else
 				SpinningColor(0x00, 0x00, 0x00, 0x00);
 		}
-
-//		//Update the LEDs
-//		if(LightUpdate || HTML_LightUpdate)
-//		{
-//			//Control the lights here
-//			LightUpdate = 0;
-//
-//			if(HTML_LightUpdate)
-//			{
-//				tempColor = BallColor;
-//				BallColor = HTMLcolor;
-//			}
-//
-//			if(BallBlink && !HTML_LightUpdate)
-//			{
-//				if(tempLightState)
-//					tempLightState = 0;
-//				else
-//					tempLightState = 1;
-//			}
-//			else
-//				tempLightState = 1;
-//
-//			if(BallColor == RED && tempLightState)
-//				gradualFill(numLEDs, 0x0F, 0x00, 0x00, 0x00);
-//			else if(BallColor == BLUE && tempLightState)
-//				gradualFill(numLEDs, 0x00, 0x00, 0x0F, 0x00);
-//			else if(BallColor == GREEN && tempLightState)
-//				gradualFill(numLEDs, 0x00, 0x0F, 0x00, 0x00);
-//			else
-//				gradualFill(numLEDs, 0x00, 0x00, 0x00, 0x00);
-//
-//			if(HTML_LightUpdate)
-//			{
-//				HTML_LightUpdate = 0;
-//				BallColor = tempColor;
-//			}
-//		}
 
 		//Parse data that will be coming through from the HTML wab page
 		if(NewData)
@@ -242,50 +220,66 @@ void main(void)
 
 		if(One_Day)
 		{
+			RTC_tick = 1;
 			One_Day = 0; Two_Day = 0; Five_Day = 0;
 			ST7735_FillScreen(0x0000);
 
-			sprintf(tempStr, "%s", Weather[0].conditions);
-			ST7735_DrawStringHorizontal(0, 18, tempStr, 0x0FF0, 2);
-			sprintf(tempStr, "High Temp: %d", Weather[0].fahrenheitHIGH);
-			ST7735_DrawStringHorizontal(0, 45, tempStr, 0x0FF0, 2);
-			sprintf(tempStr, "Low Temp: %d", Weather[0].fahrenheitLOW);
-			ST7735_DrawStringHorizontal(60, 62, tempStr, 0x0FF0, 1);
-			sprintf(tempStr, "Humidity: %d", Weather[0].avehumidity);
-			ST7735_DrawStringHorizontal(0, 80, tempStr, 0x0FF0, 2);
+			sprintf(tempStr, "%s", CurrentWeather.currentCondition);
+			ST7735_DrawStringHorizontal(0, 11, tempStr, 0xFF00, 2);
+
+			sprintf(tempStr, "High Temp:%d F", Weather[0].fahrenheitHIGH);
+			ST7735_DrawStringHorizontal(40, 30, tempStr, 0x00FF, 1);
+			sprintf(tempStr, "Cur.Temp:%d F", CurrentWeather.currentTemp);
+			ST7735_DrawStringHorizontal(0, 40, tempStr, 0x0FF0, 2);
+			sprintf(tempStr, "Low Temp: %d F", Weather[0].fahrenheitLOW);
+			ST7735_DrawStringHorizontal(40, 57, tempStr, 0x00FF, 1);
+
+			sprintf(tempStr, "Humidity:%d %%", CurrentWeather.currentHumidity);
+			ST7735_DrawStringHorizontal(0, 70, tempStr, 0x0FF0, 2);
+			sprintf(tempStr, "POP: %d %%", Weather[0].pop);
+			ST7735_DrawStringHorizontal(0, 90, tempStr, 0x0FF0, 2);
 			sprintf(tempStr, "Wind:%dmph %s", Weather[0].avewind, Weather[0].windDirection);
-			ST7735_DrawStringHorizontal(0, 110, tempStr, 0x0FF0, 2);
+			ST7735_DrawStringHorizontal(0, 109, tempStr, 0x0FF0, 2);
 		}
 
 		if(Two_Day)
 		{
+			RTC_tick = 1;
 			One_Day = 0; Two_Day = 0; Five_Day = 0;
 			ST7735_FillScreen(0x0000);
 			ST7735_DrawStringVertical(72, 0, "|||||||||||||||", 0x0FF0, 1);
 
-			sprintf(tempStr, "-Today-");
-			ST7735_DrawStringHorizontal(0, 11, tempStr, 0x00FF, 1);
-			sprintf(tempStr, "%s", Weather[0].conditions);
-			ST7735_DrawStringHorizontal(0, 27, tempStr, 0x0FF0, 1);
-			sprintf(tempStr, "Temp H: %d", Weather[0].fahrenheitHIGH);
-			ST7735_DrawStringHorizontal(0, 45, tempStr, 0x0FF0, 1);
-			sprintf(tempStr, "Temp L: %d", Weather[0].fahrenheitLOW);
-			ST7735_DrawStringHorizontal(0, 62, tempStr, 0x0FF0, 1);
-			sprintf(tempStr, "Humidity: %d", Weather[0].avehumidity);
+			sprintf(tempStr, "   -Today-");
+			ST7735_DrawStringHorizontal(0, 11, tempStr, 0x0FFF, 1);
+			sprintf(tempStr, "%s", CurrentWeather.currentCondition);
+			ST7735_DrawStringHorizontal(0, 27, tempStr, 0xFF00, 1);
+
+			sprintf(tempStr, "  Temp:%d F", Weather[0].fahrenheitHIGH);
+			ST7735_DrawStringHorizontal(0, 40, tempStr, 0x00FF, 1);
+			sprintf(tempStr, "Temp:%d F", CurrentWeather.currentTemp);
+			ST7735_DrawStringHorizontal(0, 54, tempStr, 0x0FF0, 1);
+			sprintf(tempStr, "  Low: %d F", Weather[0].fahrenheitLOW);
+			ST7735_DrawStringHorizontal(0, 68, tempStr, 0x00FF, 1);
+
+			sprintf(tempStr, "Humidity:%d%%", Weather[0].avehumidity);
 			ST7735_DrawStringHorizontal(0, 80, tempStr, 0x0FF0, 1);
+			sprintf(tempStr, "POP:%d %%", Weather[0].pop);
+			ST7735_DrawStringHorizontal(0, 95, tempStr, 0x0FF0, 1);
 			sprintf(tempStr, "W: %dmph %s", Weather[0].avewind, Weather[0].windDirection);
 			ST7735_DrawStringHorizontal(0, 110, tempStr, 0x0FF0, 1);
 
-			sprintf(tempStr, "-Tomorrow-");
-			ST7735_DrawStringHorizontal(78, 11, tempStr, 0x00FF, 1);
+			sprintf(tempStr, " -Tomorrow-");
+			ST7735_DrawStringHorizontal(78, 11, tempStr, 0x0FFF, 1);
 			sprintf(tempStr, "%s", Weather[1].conditions);
 			ST7735_DrawStringHorizontal(78, 27, tempStr, 0xFF00, 1);
-			sprintf(tempStr, "Temp H: %d", Weather[1].fahrenheitHIGH);
+			sprintf(tempStr, "Temp H:%d F", Weather[1].fahrenheitHIGH);
 			ST7735_DrawStringHorizontal(78, 45, tempStr, 0xFF00, 1);
-			sprintf(tempStr, "Temp L: %d", Weather[1].fahrenheitLOW);
+			sprintf(tempStr, "Temp L:%d F", Weather[1].fahrenheitLOW);
 			ST7735_DrawStringHorizontal(78, 62, tempStr, 0xFF00, 1);
-			sprintf(tempStr, "Humidity: %d", Weather[1].avehumidity);
+			sprintf(tempStr, "Humidity:%d%%", Weather[1].avehumidity);
 			ST7735_DrawStringHorizontal(78, 80, tempStr, 0xFF00, 1);
+			sprintf(tempStr, "POP:%d %%", Weather[1].pop);
+			ST7735_DrawStringHorizontal(78, 95, tempStr, 0xFF00, 1);
 			sprintf(tempStr, "W: %dmph %s", Weather[1].avewind, Weather[1].windDirection);
 			ST7735_DrawStringHorizontal(78, 110, tempStr, 0xFF00, 1);
 		}
@@ -299,29 +293,37 @@ void main(void)
 			ST7735_FillScreen(0x0000);
 			ST7735_DrawStringVertical(72, 0, "|||||||||||||||", 0x0FF0, 1);
 
-			sprintf(tempStr, "Day: %d", marker);
+			memset(dayString, 0, sizeof(dayString));
+			NextDateString(CurrentWeather.dayOfWeek, dayString, marker);
+			sprintf(tempStr, "%s", dayString);
 			ST7735_DrawStringHorizontal(0, 11, tempStr, 0x0FF0, 1);
 			sprintf(tempStr, "%s", Weather[marker].conditions);
 			ST7735_DrawStringHorizontal(0, 27, tempStr, 0x0FF0, 1);
-			sprintf(tempStr, "Temp H: %d", Weather[marker].fahrenheitHIGH);
+			sprintf(tempStr, "Temp H:%d F", Weather[marker].fahrenheitHIGH);
 			ST7735_DrawStringHorizontal(0, 45, tempStr, 0x0FF0, 1);
-			sprintf(tempStr, "Temp L: %d", Weather[marker].fahrenheitLOW);
+			sprintf(tempStr, "Temp L:%d F", Weather[marker].fahrenheitLOW);
 			ST7735_DrawStringHorizontal(0, 62, tempStr, 0x0FF0, 1);
-			sprintf(tempStr, "Humidity: %d", Weather[marker].avehumidity);
+			sprintf(tempStr, "Humidity:%d%%", Weather[marker].avehumidity);
 			ST7735_DrawStringHorizontal(0, 80, tempStr, 0x0FF0, 1);
+			sprintf(tempStr, "POP:%d %%", Weather[marker].pop);
+			ST7735_DrawStringHorizontal(0, 95, tempStr, 0x0FF0, 1);
 			sprintf(tempStr, "W: %dmph %s", Weather[marker].avewind, Weather[marker].windDirection);
 			ST7735_DrawStringHorizontal(0, 110, tempStr, 0x0FF0, 1);
 
-			sprintf(tempStr, "Day: %d", marker + 1);
+			memset(dayString, 0, sizeof(dayString));
+			NextDateString(CurrentWeather.dayOfWeek, dayString, (marker+1));
+			sprintf(tempStr, "%s", dayString);
 			ST7735_DrawStringHorizontal(78, 11, tempStr, 0xFF00, 1);
 			sprintf(tempStr, "%s", Weather[marker + 1].conditions);
 			ST7735_DrawStringHorizontal(78, 27, tempStr, 0xFF00, 1);
-			sprintf(tempStr, "Temp H: %d", Weather[marker + 1].fahrenheitHIGH);
+			sprintf(tempStr, "Temp H:%d F", Weather[marker + 1].fahrenheitHIGH);
 			ST7735_DrawStringHorizontal(78, 45, tempStr, 0xFF00, 1);
-			sprintf(tempStr, "Temp L: %d", Weather[marker + 1].fahrenheitLOW);
+			sprintf(tempStr, "Temp L:%d F", Weather[marker + 1].fahrenheitLOW);
 			ST7735_DrawStringHorizontal(78, 62, tempStr, 0xFF00, 1);
-			sprintf(tempStr, "Humidity: %d", Weather[marker + 1].avehumidity);
+			sprintf(tempStr, "Humidity:%d%%", Weather[marker + 1].avehumidity);
 			ST7735_DrawStringHorizontal(78, 80, tempStr, 0xFF00, 1);
+			sprintf(tempStr, "POP:%d %%", Weather[marker + 1].pop);
+			ST7735_DrawStringHorizontal(78, 95, tempStr, 0xFF00, 1);
 			sprintf(tempStr, "W: %dmph %s", Weather[marker + 1].avewind, Weather[marker + 1].windDirection);
 			ST7735_DrawStringHorizontal(78, 110, tempStr, 0xFF00, 1);
 
@@ -339,6 +341,21 @@ void main(void)
 			for(i = 0; i < strlen(timeString); i++)
 			{
 				ST7735_DrawChar((6*i), 0, timeString[i], ST7735_Color565(255, 255, 255), ST7735_Color565(255, 0, 0), 1);
+			}
+		}
+
+		if(ColonBlink)
+		{
+			ColonBlink = 0;
+			if(colonTemp)
+			{
+				colonTemp = 0;
+				ST7735_DrawChar(42, 0, ':', ST7735_Color565(255, 255, 255), ST7735_Color565(255, 0, 0), 1);
+			}
+			else
+			{
+				colonTemp = 1;
+				ST7735_DrawChar(42, 0, ' ', ST7735_Color565(255, 255, 255), ST7735_Color565(255, 0, 0), 1);
 			}
 		}
 	}
@@ -401,6 +418,8 @@ void rtc_isr(void)
 {
 	static int j, i;
     uint32_t status;
+
+    ColonBlink = 1;
 
     if(j++ > 6)
     {

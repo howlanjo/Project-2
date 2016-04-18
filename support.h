@@ -54,6 +54,7 @@ int spi_Open(void);
 int BallColorDecision(void);
 int LaunchWebsite(int channel);
 void SpinningColor(u_char r, u_char g, u_char b, u_char w);
+int NextDateString(int currentDay, char *dayStringReturn, int daysOut);
 
 //Initialize the lights. Highlevel
 int InitLight(void);
@@ -85,16 +86,24 @@ XTRN int RTC_tick, LightUpdate, BallColor, BallBlink, IPDChannel;
 XTRN RTC_C_Calendar newTime;
 XTRN char strToFind[10][20];
 XTRN int spaces[10], One_Day, Five_Day, Two_Day, ScrollingTick, LightTimer, WeatherUpdate;
-XTRN int BallColorMASTER, BallBlinkMASTER;
+XTRN int BallColorMASTER, BallBlinkMASTER, ColonBlink;
 
 typedef struct{
 	unsigned int fahrenheitHIGH;
 	unsigned int fahrenheitLOW;
-	unsigned int  avehumidity;
+	unsigned int avehumidity;
+	unsigned int pop;
 	char conditions[30];
 	unsigned int avewind;
 	char windDirection[5];
 }T_WeatherData;
+
+typedef struct{
+	unsigned int currentTemp;
+	unsigned int currentHumidity;
+	char currentCondition[30];
+	int dayOfWeek;
+}T_CurrentWeather;
 
 typedef struct{
 	int hour;
@@ -117,6 +126,7 @@ XTRN uint8_t ms_timeout;
 XTRN uint32_t ms10Timer;
 XTRN LED leds[NUM_LEDS];
 XTRN T_WeatherData Weather[4];
+XTRN T_CurrentWeather CurrentWeather;
 XTRN T_TimeData TimeDate;
 
 #endif /* SUPPORT_H_ */

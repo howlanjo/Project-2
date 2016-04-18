@@ -267,7 +267,7 @@ void gradualFill(u_int n, u_char r, u_char g, u_char b, u_char w){
 //------------------------------------------------------------------------------
 void SpinningColor(u_char r, u_char g, u_char b, u_char w)
 {
-	static int a = 0, check = 0;
+	static int a = 0, check = 0, counter = 0;
 	int i = 0;
 
 	for(i = 0; i < 7; i++)
@@ -296,10 +296,13 @@ void SpinningColor(u_char r, u_char g, u_char b, u_char w)
 
 	if(BallBlink)
 	{
-		if(check == 1)
+		if(counter++ < 4)
 			check = 0;
 		else
 			check = 1;
+
+		if(counter >= 12)
+			counter = 0;
 	}
 	else
 	{
